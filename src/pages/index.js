@@ -2,7 +2,7 @@ import Image from 'next/image'
 import { Inter } from 'next/font/google'
 import {FaRobot} from 'react-icons/fa'
 import {RiSendPlaneFill} from 'react-icons/ri'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -12,7 +12,25 @@ export default function Home() {
   const [currentInput, setCurrentInput] = useState('')
   const [answerFromBot, setAnswerFromBot] = useState('')
 
+  const [apiKey, setApiKey] = useState()
+
+  const [apiInput, setApiInput] = useState('')
+
+  useEffect(() => {
+    localStorage.getItem('APIKEYFROMSTORAGE') && setApiKey(localStorage.getItem('APIKEYFROMSTORAGE'))
+  }, [])
+
+  function setKeyinStorage(currentInput) {
+    localStorage.setItem('APIKEYFROMSTORAGE', currentInput)
+    setApiKey(currentInput)
+  }
+
   function sendQuestion() {
+
+    if (!apiKey) {
+      setKeyinStorage(apiInput)
+    }
+
     setLoading(true)
     setCurrentInput('')
 
@@ -20,7 +38,7 @@ export default function Home() {
       query: currentInput,
       chattingId: 'ZmlsZTovLy9DOi9Vc2Vycy9wcmF0aS9Eb3dubG9hZHMvQ29sYWJCb3RQREYuaHRtbA',
       text: "text",
-      APIKEYFROMSTORAGE: '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',
+      APIKEYFROMSTORAGE: apiKey,
     };
     
     fetch("https://chat-over-docs.vercel.app/api/chat", {
@@ -79,7 +97,9 @@ export default function Home() {
       <div className="z-100 w-5xl items-center justify-center font-mono text-sm lg:flex mb-10">
 
 <div className=' z-1000000 flex items-center justify-between max-w-5xl w-full bg-gray-200 dark:bg-neutral-800/30 rounded-lg border border-transparent transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30'>
-<input onChange={(e) => setCurrentInput(e.target.value)} value={currentInput} type='text' placeholder='Enter your message here' className='z-100 w-full px-5 py-4 bg-transparent focus:outline-none '/>
+{apiKey && <input onChange={(e) => setCurrentInput(e.target.value)} value={currentInput} type='text' placeholder='Enter your question here' className='z-100 w-full px-5 py-4 bg-transparent focus:outline-none '/>}
+
+{!apiKey && <input onChange={(e) => setApiInput(e.target.value)} value={apiInput} type='text' placeholder='Enter your API Key here' className='z-100 w-full px-5 py-4 bg-transparent focus:outline-none '/>}
 <button disabled={loading} onClick={sendQuestion}><RiSendPlaneFill fontSize={25} className='mx-5'/></button>
 </div>
 </div>
